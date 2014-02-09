@@ -1,0 +1,16 @@
+ext.githubProjectName = 'rxjava-servlet'
+
+subprojects {
+    apply plugin: 'java'
+
+    repositories {
+       mavenCentral()
+    }
+
+    dependencies {
+        compile "com.netflix.rxjava:rxjava-core:0.16.1"
+        compile 'javax.servlet:javax.servlet-api:3.1.0'
+    }
+
+    version = '0.1'
+}

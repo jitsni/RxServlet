@@ -1,0 +1,7 @@
+subprojects {
+    apply plugin: 'war'
+
+    dependencies {
+        compile project(':api')
+    }
+}
