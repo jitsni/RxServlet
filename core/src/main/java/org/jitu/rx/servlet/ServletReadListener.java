@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package rx.servlet;
+package org.jitu.rx.servlet;
 
 import rx.Observer;
+import rx.Subscriber;
 
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
@@ -32,14 +33,12 @@ import java.util.logging.Logger;
 class ServletReadListener implements ReadListener {
     private static final Logger LOGGER = Logger.getLogger(ServletReadListener.class.getName());
 
-    private final Observer<? super ByteBuffer> observer;
+    private final Subscriber<? super ByteBuffer> subscriber;
     private final ServletInputStream in;
-    // Accessed by container thread, but assigned by some other thread (hence volatile field)
-    private volatile boolean unsubscribed;
 
-    ServletReadListener(ServletInputStream in, Observer<? super ByteBuffer> observer) {
+    ServletReadListener(ServletInputStream in, Subscriber<? super ByteBuffer> subscriber) {
         this.in = in;
-        this.observer = observer;
+        this.subscriber = subscriber;
     }
 
     @Override
@@ -48,13 +47,13 @@ class ServletReadListener implements ReadListener {
             byte[] buf = new byte[4096];
             int len = in.read(buf);
             if (len != -1) {
-                observer.onNext(ByteBuffer.wrap(buf, 0, len));
+                subscriber.onNext(ByteBuffer.wrap(buf, 0, len));
             }
         // loop until isReady() false, otherwise container will not call onDataAvailable()
-        } while(!unsubscribed && in.isReady());
+        } while(!subscriber.isUnsubscribed() && in.isReady());
         // If isReady() false, container will call onDataAvailable()
         // when data is available.
-        if (LOGGER.isLoggable(Level.FINE) && !unsubscribed) {
+        if (LOGGER.isLoggable(Level.FINE) && !subscriber.isUnsubscribed()) {
             LOGGER.fine("Waiting for container to notify when there is HTTP request data");
         }
     }
@@ -64,8 +63,8 @@ class ServletReadListener implements ReadListener {
         if (LOGGER.isLoggable(Level.FINE)) {
             LOGGER.fine("Read all the data from ServletInputStream");
         }
-        if (!unsubscribed) {
-            observer.onCompleted();
+        if (!subscriber.isUnsubscribed()) {
+            subscriber.onCompleted();
         }
     }
 
@@ -74,12 +73,9 @@ class ServletReadListener implements ReadListener {
         if (LOGGER.isLoggable(Level.WARNING)) {
             LOGGER.log(Level.WARNING, "Error while reading the data from ServletInputStream", t);
         }
-        if (!unsubscribed) {
-            observer.onError(t);
+        if (!subscriber.isUnsubscribed()) {
+            subscriber.onError(t);
         }
     }
 
-    void unsubscribe() {
-        unsubscribed = true;
-    }
 }

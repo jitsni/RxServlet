@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package rx.servlet;
+package org.jitu.rx.servlet;
 
-import rx.Observer;
+import rx.Subscriber;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.WriteListener;
@@ -31,22 +31,23 @@ import java.util.logging.Logger;
 class ServletWriteListener implements WriteListener {
     private static final Logger LOGGER = Logger.getLogger(ObservableServlet.class.getName());
 
-    private final Observer<? super Void> observer;
+    private final Subscriber<? super Void> subscriber;
     private final ServletOutputStream out;
-    // Accessed by container thread, but assigned by some other thread (hence volatile)
-    private volatile boolean unsubscribed;
 
-    ServletWriteListener(Observer<? super Void> observer, final ServletOutputStream out) {
-        this.observer = observer;
+    ServletWriteListener(Subscriber<? super Void> subscriber, final ServletOutputStream out) {
+        this.subscriber = subscriber;
         this.out = out;
     }
 
     @Override
     public void onWritePossible() {
         do {
-            observer.onNext(null);
-        } while(!unsubscribed && out.isReady());
-        if (LOGGER.isLoggable(Level.FINE) && !unsubscribed) {
+            subscriber.onNext(null);
+        // loop until isReady() false, otherwise container will not call onWritePossible()
+        } while(!subscriber.isUnsubscribed() && out.isReady());
+        // If isReady() false, container will call onWritePossible()
+        // when data can be written.
+        if (LOGGER.isLoggable(Level.FINE) && !subscriber.isUnsubscribed()) {
             LOGGER.fine("Waiting for container to notify when HTTP response data can be written");
         }
     }
@@ -56,15 +57,9 @@ class ServletWriteListener implements WriteListener {
         if (LOGGER.isLoggable(Level.WARNING)) {
             LOGGER.log(Level.WARNING, "Error while writing HTTP response data", t);
         }
-        if (!unsubscribed) {
-            observer.onError(t);
+        if (!subscriber.isUnsubscribed()) {
+            subscriber.onError(t);
         }
     }
 
-    void unsubscribe() {
-        if (LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.fine("Unsubscribing to writing HTTP response data");
-        }
-        unsubscribed = true;
-    }
 }

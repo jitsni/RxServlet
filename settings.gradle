@@ -1,4 +1,0 @@
-rootProject.name='rxjava-servlet-all'
-
-include 'api'
-include 'examples:basic'

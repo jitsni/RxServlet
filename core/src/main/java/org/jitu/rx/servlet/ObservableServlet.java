@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package rx.servlet;
+package org.jitu.rx.servlet;
 
 import rx.Observable;
 import rx.Observable.*;
 import rx.Observer;
-import rx.Subscription;
-import rx.util.functions.Func2;
+import rx.Subscriber;
+import rx.functions.Func2;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -54,17 +54,11 @@ public class ObservableServlet {
      * @return Observable of HTTP request data
      */
     public static Observable<ByteBuffer> create(final ServletInputStream in) {
-        return Observable.create(new OnSubscribeFunc<ByteBuffer>() {
+        return Observable.create(new OnSubscribe<ByteBuffer>() {
             @Override
-            public Subscription onSubscribe(final Observer<? super ByteBuffer> observer) {
-                final ServletReadListener listener = new ServletReadListener(in, observer);
+            public void call(Subscriber<? super ByteBuffer> subscriber) {
+                final ServletReadListener listener = new ServletReadListener(in, subscriber);
                 in.setReadListener(listener);
-                return new Subscription() {
-                    @Override
-                    public void unsubscribe() {
-                        listener.unsubscribe();
-                    }
-                };
             }
         });
     }
@@ -85,17 +79,12 @@ public class ObservableServlet {
      * @return Observable of HTTP response write ready events
      */
     public static Observable<Void> create(final ServletOutputStream out) {
-        return Observable.create(new OnSubscribeFunc<Void>() {
+
+        return Observable.create(new OnSubscribe<Void>() {
             @Override
-            public Subscription onSubscribe(final Observer<? super Void> observer) {
-                final ServletWriteListener listener = new ServletWriteListener(observer, out);
+            public void call(Subscriber<? super Void> subscriber) {
+                final ServletWriteListener listener = new ServletWriteListener(subscriber, out);
                 out.setWriteListener(listener);
-                return new Subscription() {
-                    @Override
-                    public void unsubscribe() {
-                        listener.unsubscribe();
-                    }
-                };
             }
         });
     }
@@ -115,13 +104,13 @@ public class ObservableServlet {
      * into asynchronous mode.
      *
      * @param data
-     * @param out
+     * @param out servlet output stream
      * @return
      */
     public static Observable<Void> write(final Observable<ByteBuffer> data, final ServletOutputStream out) {
-        return Observable.create(new OnSubscribeFunc<Void>() {
+        return Observable.create(new OnSubscribe<Void>() {
             @Override
-            public Subscription onSubscribe(Observer<? super Void> t1) {
+            public void call(Subscriber<? super Void> subscriber) {
                 Observable<Void> events = create(out);
                 Observable<Void> writeobs = Observable.zip(data, events, new Func2<ByteBuffer, Void, Void>() {
                     @Override
@@ -139,7 +128,7 @@ public class ObservableServlet {
                         return null;
                     }
                 });
-                return writeobs.subscribe(t1);
+                writeobs.subscribe(subscriber);
             }
         });
     }

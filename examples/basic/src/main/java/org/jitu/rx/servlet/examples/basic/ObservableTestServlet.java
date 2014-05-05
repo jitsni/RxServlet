@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package rx.servlet.examples.basic;
+package org.jitu.rx.servlet.examples.basic;
 
 import rx.Observable;
 import rx.Observer;
-import rx.servlet.ObservableServlet;
+import org.jitu.rx.servlet.ObservableServlet;
+import rx.functions.Action0;
+import rx.functions.Func1;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.ServletException;
@@ -55,6 +57,10 @@ public class ObservableTestServlet extends HttpServlet {
         AsyncContext ac = req.startAsync();
         ServletInputStream in = req.getInputStream();
         ObservableServlet.create(in).subscribe(new ReadObserver(resp, ac));
+
+        //ObservableServlet.create(in).finallyDo(new WriteObserver(ac)).subscribe(new ReadObserver(resp, ac));
+
+
     }
 
 
