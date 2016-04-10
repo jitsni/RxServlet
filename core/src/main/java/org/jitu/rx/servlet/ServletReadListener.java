@@ -43,17 +43,18 @@ class ServletReadListener implements ReadListener {
 
     @Override
     public void onDataAvailable() throws IOException {
-        do {
-            byte[] buf = new byte[4096];
+        byte[] buf = new byte[4096];
+
+        // loop until isReady() false, otherwise container will not call onDataAvailable()
+        while(!subscriber.isUnsubscribed() && in.isReady() && !in.isFinished()) {
             int len = in.read(buf);
-            if (len != -1) {
+            if (len > 0) {      // jetty returns -1 !!
                 subscriber.onNext(ByteBuffer.wrap(buf, 0, len));
             }
-        // loop until isReady() false, otherwise container will not call onDataAvailable()
-        } while(!subscriber.isUnsubscribed() && in.isReady());
+        }
         // If isReady() false, container will call onDataAvailable()
         // when data is available.
-        if (LOGGER.isLoggable(Level.FINE) && !subscriber.isUnsubscribed()) {
+        if (LOGGER.isLoggable(Level.FINE) && !in.isFinished() && !subscriber.isUnsubscribed()) {
             LOGGER.fine("Waiting for container to notify when there is HTTP request data");
         }
     }
