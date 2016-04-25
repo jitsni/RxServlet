@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package org.jitu.rx.servlet.examples.basic;
+package com.github.jitsni.rx.servlet.servlet.examples.basic;
 
 import rx.Observable;
 import rx.Observer;
-import org.jitu.rx.servlet.ObservableServlet;
-import rx.functions.Action0;
-import rx.functions.Func1;
+import com.github.jitsni.rx.servlet.servlet.ObservableServlet;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.ServletException;

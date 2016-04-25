@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jitu.rx.servlet;
+package com.github.jitsni.rx.servlet.servlet;
 
 import rx.Observer;
 import rx.Subscriber;
