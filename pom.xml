@@ -61,11 +61,10 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git@github.com:jitsni/rxjava-servlet.git</connection>
-        <developerConnection>scm:git:git@github.com:jitsni/rxjava-servlet.git</developerConnection>
-        <url>scm:git:git@github.com:jitsni/rxjava-servlet.git</url>
-      <tag>rxservlet-all-0.1</tag>
-  </scm>
+        <connection>scm:git:git@github.com:jitsni/RxServlet.git</connection>
+        <developerConnection>scm:git:git@github.com:jitsni/RxServlet.git</developerConnection>
+        <url>scm:git:git@github.com:jitsni/RxServlet.git</url>
+   </scm>
 
     <dependencies>
         <dependency>
@@ -198,9 +197,7 @@
                             <autoVersionSubmodules>true</autoVersionSubmodules>
                             <useReleaseProfile>false</useReleaseProfile>
                             <releaseProfiles>release</releaseProfiles>
-                            <goals>
-                                <goal>deploy</goal>
-                            </goals>
+                            <goals>deploy</goals>
                         </configuration>
                     </plugin>
                 </plugins>
