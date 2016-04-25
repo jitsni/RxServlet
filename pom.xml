@@ -9,7 +9,7 @@
     </parent>
     <groupId>com.github.jitsni</groupId>
     <artifactId>rxservlet-all</artifactId>
-    <version>0.2</version>
+    <version>0.3-SNAPSHOT</version>
 
     <name>rxjava-servlet-all</name>
     <description>Rx extensions for servlet</description>
@@ -64,7 +64,7 @@
         <connection>scm:git:git@github.com:jitsni/RxServlet.git</connection>
         <developerConnection>scm:git:git@github.com:jitsni/RxServlet.git</developerConnection>
         <url>scm:git:git@github.com:jitsni/RxServlet.git</url>
-     <tag>rxservlet-0.2</tag>
+     <tag>HEAD</tag>
   </scm>
 
     <dependencies>
